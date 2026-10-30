@@ -1,27 +1,3 @@
-const DEFAULT_DISHES = [
-  { "name": "Chole", "votes": 3, "pref": "day" },
-  { "name": "Chawali", "votes": 3, "pref": "day" },
-  { "name": "Pulav", "votes": 4, "pref": "night" },
-  { "name": "Dal chawal", "votes": 4, "pref": "night" },
-  { "name": "Dal khichadi", "votes": 4, "pref": "night" },
-  { "name": "Aloo paratha", "votes": 4, "pref": "night" },
-  { "name": "Methi paratha", "votes": 4, "pref": "night" },
-  { "name": "Loki paratha / sabji", "votes": 4, "pref": "night" },
-  { "name": "Thalipeet", "votes": 3, "pref": "night" },
-  { "name": "Bhindi", "votes": 3, "pref": "any" },
-  { "name": "Aloo gravey", "votes": 4, "pref": "any" },
-  { "name": "Aloo dry", "votes": 4, "pref": "any" },
-  { "name": "Pattagobi", "votes": 1, "pref": "any" },
-  { "name": "Phoolgobi", "votes": 3, "pref": "any" },
-  { "name": "French beans", "votes": 2, "pref": "any" },
-  { "name": "Pumpkin (will try once)", "votes": 3, "pref": "any" },
-  { "name": "Moong ki sabji (backup)", "votes": 3, "pref": "any" },
-  { "name": "Mix veg", "votes": 4, "pref": "any" },
-  { "name": "Aloo Kanda", "votes": 4, "pref": "any" },
-  { "name": "Toru / turai (once)", "votes": 2, "pref": "any" },
-  { "name": "Aloo palak", "votes": 4, "pref": "any" }
-];
-
 let allDishes = [];
 let currentSlot = 'day'; // 'day' | 'night'
 let cooldownDays = 7;
@@ -48,16 +24,8 @@ async function init() {
 }
 
 async function loadDishes() {
-  try {
-    const res = await fetch('./dishes.json');
-    if (res.ok) {
-      allDishes = await res.json();
-    } else {
-      allDishes = DEFAULT_DISHES;
-    }
-  } catch (e) {
-    allDishes = DEFAULT_DISHES;
-  }
+  const res = await fetch('./dishes.json');
+  allDishes = await res.json();
 }
 
 function detectSlot() {
