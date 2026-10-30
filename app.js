@@ -223,8 +223,8 @@ function renderSuggestions() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="dish-name">${escapeHtml(dish.name)}</td>
-      <td class="text-center vote-count">${dish.votes}/4</td>
-      <td class="text-right">
+      <td class="col-votes vote-count">${dish.votes}/4</td>
+      <td class="col-action">
         <button type="button" class="btn-cook" data-name="${escapeHtml(dish.name)}">Cook</button>
       </td>
     `;
@@ -249,10 +249,10 @@ function renderHistory() {
     const dateLabel = formatDate(item.timestamp);
 
     tr.innerHTML = `
-      <td>${dateLabel}</td>
-      <td>${slotLabel}</td>
+      <td class="col-date">${dateLabel}</td>
+      <td class="col-slot">${slotLabel}</td>
       <td class="dish-name">${escapeHtml(item.dish)}</td>
-      <td class="text-right">
+      <td class="col-action">
         <button type="button" class="btn-delete" data-id="${item.id}">Delete</button>
       </td>
     `;

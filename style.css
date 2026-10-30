@@ -83,6 +83,7 @@ body {
 /* Tables (JSONBin style) */
 .data-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
@@ -131,6 +132,33 @@ body {
 
 .text-right {
   text-align: right;
+}
+
+.data-table th.col-votes,
+.data-table td.col-votes,
+.data-table th.col-action,
+.data-table td.col-action {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table th.col-date,
+.data-table td.col-date {
+  width: 85px;
+  min-width: 85px;
+  max-width: 85px;
+  white-space: nowrap;
+}
+
+.data-table th.col-slot,
+.data-table td.col-slot {
+  width: 75px;
+  min-width: 75px;
+  max-width: 75px;
+  white-space: nowrap;
 }
 
 /* Buttons */
@@ -192,4 +220,3 @@ body {
   padding: 18px 12px;
   text-align: center;
 }
-
