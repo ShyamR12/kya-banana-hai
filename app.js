@@ -2,6 +2,7 @@ let allDishes = [];
 let currentSlot = 'day'; // 'day' | 'night'
 let cooldownDays = 7;
 let suggestions = [];
+let manualDish = null;
 
 const STORAGE_KEY_HISTORY = 'kya_banana_hai_history';
 const STORAGE_KEY_COOLDOWN = 'kya_banana_hai_cooldown';
@@ -13,6 +14,8 @@ const btn5d = document.getElementById('btn5d');
 const rerollBtn = document.getElementById('rerollBtn');
 const suggestionsBody = document.getElementById('suggestionsBody');
 const historyBody = document.getElementById('historyBody');
+const dishSearchInput = document.getElementById('dishSearchInput');
+const searchDropdown = document.getElementById('searchDropdown');
 
 async function init() {
   loadCooldown();
@@ -94,6 +97,9 @@ function addHistory(dishName) {
   };
   list.unshift(entry);
   saveHistory(list);
+  if (manualDish && manualDish.name.toLowerCase() === dishName.toLowerCase()) {
+    manualDish = null;
+  }
   renderHistory();
   generateSuggestions();
 }
@@ -182,7 +188,7 @@ function pickWeighted(pool, count) {
 function renderSuggestions() {
   suggestionsBody.innerHTML = '';
 
-  if (suggestions.length === 0) {
+  if (suggestions.length === 0 && !manualDish) {
     suggestionsBody.innerHTML = `<tr><td colspan="3" class="empty-cell">No eligible dishes found</td></tr>`;
     return;
   }
@@ -200,6 +206,32 @@ function renderSuggestions() {
     btn.addEventListener('click', () => addHistory(dish.name));
     suggestionsBody.appendChild(tr);
   });
+
+  if (manualDish) {
+    const isAlreadySuggested = suggestions.some(d => d.name.toLowerCase() === manualDish.name.toLowerCase());
+    if (!isAlreadySuggested) {
+      const inCooldown = isInCooldown(manualDish.name, cooldownDays);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="dish-name">
+          ${escapeHtml(manualDish.name)}
+          <span class="tag-manual">(Manual)</span>
+          ${inCooldown ? '<span class="tag-cooldown">(Cooldown)</span>' : ''}
+          <button type="button" class="btn-remove-manual" title="Remove">&times;</button>
+        </td>
+        <td class="col-votes vote-count">${manualDish.votes}/4</td>
+        <td class="col-action">
+          <button type="button" class="btn-cook" data-name="${escapeHtml(manualDish.name)}">Cook</button>
+        </td>
+      `;
+      tr.querySelector('.btn-cook').addEventListener('click', () => addHistory(manualDish.name));
+      tr.querySelector('.btn-remove-manual').addEventListener('click', () => {
+        manualDish = null;
+        renderSuggestions();
+      });
+      suggestionsBody.appendChild(tr);
+    }
+  }
 }
 
 function renderHistory() {
@@ -259,6 +291,56 @@ function bindEvents() {
   btn7d.addEventListener('click', () => setCooldown(7));
   btn5d.addEventListener('click', () => setCooldown(5));
   rerollBtn.addEventListener('click', generateSuggestions);
+
+  dishSearchInput.addEventListener('input', () => {
+    const query = dishSearchInput.value.trim().toLowerCase();
+    if (!query) {
+      searchDropdown.style.display = 'none';
+      searchDropdown.innerHTML = '';
+      return;
+    }
+
+    const matches = allDishes.filter(d => d.name.toLowerCase().includes(query));
+    if (matches.length === 0) {
+      searchDropdown.innerHTML = '<div class="search-empty">No dishes found</div>';
+      searchDropdown.style.display = 'block';
+      return;
+    }
+
+    searchDropdown.innerHTML = '';
+    matches.forEach(dish => {
+      const item = document.createElement('div');
+      item.className = 'search-item';
+      const inCooldown = isInCooldown(dish.name, cooldownDays);
+      item.innerHTML = `
+        <span class="dish-name">${escapeHtml(dish.name)}</span>
+        <div class="search-item-meta">
+          ${inCooldown ? '<span class="tag-cooldown">Cooldown</span>' : ''}
+          <span>${dish.votes}/4</span>
+        </div>
+      `;
+      item.addEventListener('click', () => {
+        manualDish = dish;
+        dishSearchInput.value = '';
+        searchDropdown.style.display = 'none';
+        renderSuggestions();
+      });
+      searchDropdown.appendChild(item);
+    });
+    searchDropdown.style.display = 'block';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-container')) {
+      searchDropdown.style.display = 'none';
+    }
+  });
+
+  dishSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchDropdown.style.display = 'none';
+    }
+  });
 }
 
 function escapeHtml(str) {
